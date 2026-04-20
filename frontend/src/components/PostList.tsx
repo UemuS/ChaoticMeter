@@ -3,9 +3,10 @@ import PostListItem from "./PostListItem";
 
 type PostListProps = {
   posts: Post[];
+  search?: string;
 };
 
-export default function PostList({ posts }: PostListProps) {
+export default function PostList({ posts, search }: PostListProps) {
   return (
     <section className="post-list-section">
       <div className="section-heading section-heading-row">
@@ -17,7 +18,7 @@ export default function PostList({ posts }: PostListProps) {
 
       {posts.length === 0 ? (
         <div className="empty-state">
-          <p>No posts yet. Be the first to create one.</p>
+          <p>{search?.trim() ? `Nothing matched "${search}". The compass has no opinion on that.` : "No posts yet. Be the first to create one."}</p>
         </div>
       ) : (
         <div className="post-list">

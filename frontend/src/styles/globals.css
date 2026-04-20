@@ -935,4 +935,43 @@ body {
   .post-page-actions .share-button {
     width: 100%;
   }
+
+  .post-page-header {
+    margin: 1.25rem 0 1rem;
+  }
+
+  .post-page-hint {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .compass-wrap {
+    margin-top: 0.5rem;
+  }
+
+  .verdict-description {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .verdict-vote-count {
+    font-size: 0.78rem;
+  }
+
+  .trending-section {
+    margin-top: 1.25rem;
+  }
+
+  .empty-state {
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+
+  .load-more-wrap {
+    padding: 1rem 0 0;
+  }
+
+  .error-state {
+    margin-top: 2.5rem;
+  }
 }

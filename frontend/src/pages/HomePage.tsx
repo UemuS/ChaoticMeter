@@ -126,7 +126,7 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              <PostList posts={posts} />
+              <PostList posts={posts} search={search} />
               {hasMore && (
                 <div className="load-more-wrap">
                   <button className="secondary-button" onClick={loadMore} disabled={loadingMore}>
