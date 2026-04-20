@@ -41,6 +41,7 @@ def og_html(post: Post, base_url: str) -> str:
     title = html_module.escape(post.title)
     description = html_module.escape(post.body or "Vote on the ChaoticMeter compass.")
     url = f"{base_url}/posts/{post.slug}"
+    image = f"{base_url}/api/posts/{post.slug}/og-image"
     return f"""<!DOCTYPE html>
 <html>
 <head>
@@ -51,9 +52,13 @@ def og_html(post: Post, base_url: str) -> str:
   <meta property="og:title" content="{title}">
   <meta property="og:description" content="{description}">
   <meta property="og:url" content="{url}">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="{image}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{title}">
   <meta name="twitter:description" content="{description}">
+  <meta name="twitter:image" content="{image}">
 </head>
 <body></body>
 </html>"""

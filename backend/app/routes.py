@@ -4,12 +4,14 @@ import re
 import string
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.og_image import generate_og_image
 from app.models import Post, Vote
 from app.schemas import PostCreate, PostDetailResponse, PostResponse, VoteCreate, VoteResponse
 
@@ -152,3 +154,12 @@ def create_or_update_vote(request: Request, slug: str, payload: VoteCreate, db: 
     db.refresh(vote)
 
     return vote
+
+
+@router.get("/posts/{slug}/og-image")
+def get_og_image(slug: str, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.slug == slug).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    png = generate_og_image(post.title, post.votes)
+    return Response(content=png, media_type="image/png")
