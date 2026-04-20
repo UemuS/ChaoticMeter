@@ -29,10 +29,13 @@ def health_check():
     return {"status": "ok"}
 
 
+PAGE_SIZE = 20
+
 @router.get("/posts", response_model=list[PostResponse])
 def list_posts(
     sort: str = Query(default="new"),
     search: str = Query(default=""),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
     vote_count = func.count(Vote.id)
@@ -59,7 +62,7 @@ def list_posts(
     else:
         query = query.order_by(Post.created_at.desc())
 
-    rows = query.limit(50).all()
+    rows = query.offset(offset).limit(PAGE_SIZE).all()
 
     return [
         PostResponse(

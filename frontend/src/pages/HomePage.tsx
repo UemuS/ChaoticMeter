@@ -7,6 +7,8 @@ import PostListItem from "../components/PostListItem";
 import { createPost, getPosts } from "../services/api";
 import type { Post } from "../types";
 
+const PAGE_SIZE = 20;
+
 export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [trending, setTrending] = useState<Post[]>([]);
@@ -14,6 +16,8 @@ export default function HomePage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [postsError, setPostsError] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,11 +31,26 @@ export default function HomePage() {
   async function loadPosts(currentSort: "new" | "top", currentSearch: string) {
     setPostsError(false);
     try {
-      const data = await getPosts({ sort: currentSort, search: currentSearch });
+      const data = await getPosts({ sort: currentSort, search: currentSearch, offset: 0 });
       setPosts(data);
+      setHasMore(data.length === PAGE_SIZE);
     } catch {
       setPostsError(true);
       setPosts([]);
+      setHasMore(false);
+    }
+  }
+
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      const data = await getPosts({ sort, search, offset: posts.length });
+      setPosts((prev) => [...prev, ...data]);
+      setHasMore(data.length === PAGE_SIZE);
+    } catch {
+      // silently fail — existing posts stay visible
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -45,7 +64,7 @@ export default function HomePage() {
     element?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function handleSearchSubmit(event: React.FormEvent) {
+  function handleSearchSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setSearch(searchInput.trim());
   }
@@ -106,7 +125,16 @@ export default function HomePage() {
               <button className="primary-button" onClick={() => loadPosts(sort, search)}>Retry</button>
             </div>
           ) : (
-            <PostList posts={posts} />
+            <>
+              <PostList posts={posts} />
+              {hasMore && (
+                <div className="load-more-wrap">
+                  <button className="secondary-button" onClick={loadMore} disabled={loadingMore}>
+                    {loadingMore ? "Loading..." : "Load more"}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

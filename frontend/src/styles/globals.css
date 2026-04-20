@@ -420,6 +420,12 @@ body {
     margin-top: 0.1rem;
 }
 
+.load-more-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem 0 0.5rem;
+}
+
 .trending-section {
     margin-top: 2rem;
     background: #ffffff;

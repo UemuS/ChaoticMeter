@@ -5,6 +5,7 @@ const API_URL = "/api";
 export async function getPosts(params?: {
   sort?: "new" | "top";
   search?: string;
+  offset?: number;
 }): Promise<Post[]> {
   const query = new URLSearchParams();
 
@@ -14,6 +15,10 @@ export async function getPosts(params?: {
 
   if (params?.search?.trim()) {
     query.set("search", params.search.trim());
+  }
+
+  if (params?.offset) {
+    query.set("offset", String(params.offset));
   }
 
   const url = `${API_URL}/posts${query.toString() ? `?${query.toString()}` : ""}`;
