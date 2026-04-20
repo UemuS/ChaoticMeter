@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Compass from "../components/Compass";
 import Navbar from "../components/Navbar";
-import { getPost, submitVote } from "../services/api";
+import { RateLimitError, getPost, submitVote } from "../services/api";
 import type { PostDetail } from "../types";
 import { getOrCreateVoterId } from "../utils/compass";
 
@@ -42,15 +42,20 @@ export default function PostPage() {
         if (!slug) return;
 
         const voterId = getOrCreateVoterId();
-        const updatedVote = await submitVote(slug, voterId, x, y);
 
-        setPost((prev) => {
-            if (!prev) return prev;
-            const others = prev.votes.filter((v) => v.voter_id !== voterId);
-            return { ...prev, votes: [...others, updatedVote] };
-        });
-
-        showToast("Your vote was updated", "success", 1600);
+        try {
+            const updatedVote = await submitVote(slug, voterId, x, y);
+            setPost((prev) => {
+                if (!prev) return prev;
+                const others = prev.votes.filter((v) => v.voter_id !== voterId);
+                return { ...prev, votes: [...others, updatedVote] };
+            });
+            showToast("Your vote was updated", "success", 1600);
+        } catch (err) {
+            if (err instanceof RateLimitError) {
+                showToast("Too many votes — slow down a little", "info", 2500);
+            }
+        }
     }
 
     async function handleCopyLink() {

@@ -3,7 +3,9 @@ import random
 import re
 import string
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -12,6 +14,7 @@ from app.models import Post, Vote
 from app.schemas import PostCreate, PostDetailResponse, PostResponse, VoteCreate, VoteResponse
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 def generate_slug(title: str) -> str:
@@ -72,7 +75,8 @@ def list_posts(
 
 
 @router.post("/posts", response_model=PostResponse)
-def create_post(payload: PostCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/hour")
+def create_post(request: Request, payload: PostCreate, db: Session = Depends(get_db)):
     post = Post(
         slug=generate_slug(payload.title),
         title=payload.title.strip(),
@@ -104,7 +108,8 @@ def get_post(slug: str, db: Session = Depends(get_db)):
 
 
 @router.post("/posts/{slug}/vote", response_model=VoteResponse)
-def create_or_update_vote(slug: str, payload: VoteCreate, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def create_or_update_vote(request: Request, slug: str, payload: VoteCreate, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.slug == slug).first()
 
     if not post:

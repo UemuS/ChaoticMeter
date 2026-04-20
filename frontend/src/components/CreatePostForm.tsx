@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RateLimitError } from "../services/api";
 
 type CreatePostFormProps = {
   onSubmit: (title: string, body: string) => Promise<void>;
@@ -8,6 +9,12 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -22,6 +29,10 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
       await onSubmit(trimmedTitle, trimmedBody);
       setTitle("");
       setBody("");
+    } catch (err) {
+      if (err instanceof RateLimitError) {
+        showToast("You can only submit 5 posts per hour. Come back later!");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -36,6 +47,8 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
         </p>
       </div>
 
+      <div className="create-post-wrap">
+        {toast && <div className="toast toast-success">{toast}</div>}
       <form className="create-post-form" onSubmit={handleSubmit}>
         <input
           className="create-post-input"
@@ -63,6 +76,7 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
           <p className="create-post-hint">The title does the heavy lifting.</p>
         </div>
       </form>
+      </div>
     </section>
   );
 }

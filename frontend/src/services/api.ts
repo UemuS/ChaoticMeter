@@ -35,6 +35,10 @@ export async function createPost(title: string, body: string): Promise<Post> {
     body: JSON.stringify({ title, body }),
   });
 
+  if (response.status === 429) {
+    throw new RateLimitError();
+  }
+
   if (!response.ok) {
     throw new Error("Failed to create post");
   }
@@ -69,9 +73,19 @@ export async function submitVote(
     }),
   });
 
+  if (response.status === 429) {
+    throw new RateLimitError();
+  }
+
   if (!response.ok) {
     throw new Error("Failed to submit vote");
   }
 
   return response.json();
+}
+
+export class RateLimitError extends Error {
+  constructor() {
+    super("rate_limit");
+  }
 }
