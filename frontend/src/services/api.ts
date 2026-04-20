@@ -48,11 +48,13 @@ export async function createPost(title: string, body: string): Promise<Post> {
 
 export async function getPost(slug: string): Promise<PostDetail> {
   const response = await fetch(`${API_URL}/posts/${slug}`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch post");
-  }
-
+  if (response.status === 404) throw new NotFoundError();
+  if (!response.ok) throw new Error("Failed to fetch post");
   return response.json();
+}
+
+export class NotFoundError extends Error {
+  constructor() { super("not_found"); }
 }
 
 export async function submitVote(

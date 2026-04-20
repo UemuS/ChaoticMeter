@@ -13,10 +13,11 @@ export default function HomePage() {
   const [sort, setSort] = useState<"new" | "top">("new");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [postsError, setPostsError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    getPosts({ sort: "top" }).then((data) => setTrending(data.slice(0, 3)));
+    getPosts({ sort: "top" }).then((data) => setTrending(data.slice(0, 3))).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -24,11 +25,14 @@ export default function HomePage() {
   }, [sort, search]);
 
   async function loadPosts(currentSort: "new" | "top", currentSearch: string) {
-    const data = await getPosts({
-      sort: currentSort,
-      search: currentSearch,
-    });
-    setPosts(data);
+    setPostsError(false);
+    try {
+      const data = await getPosts({ sort: currentSort, search: currentSearch });
+      setPosts(data);
+    } catch {
+      setPostsError(true);
+      setPosts([]);
+    }
   }
 
   async function handleCreatePost(title: string, body: string) {
@@ -95,7 +99,15 @@ export default function HomePage() {
             </div>
           </section>
 
-          <PostList posts={posts} />
+          {postsError ? (
+            <div className="error-state">
+              <p className="error-title">Couldn't load posts.</p>
+              <p className="error-hint">The server might be down. Try again in a moment.</p>
+              <button className="primary-button" onClick={() => loadPosts(sort, search)}>Retry</button>
+            </div>
+          ) : (
+            <PostList posts={posts} />
+          )}
         </div>
       </main>
     </>

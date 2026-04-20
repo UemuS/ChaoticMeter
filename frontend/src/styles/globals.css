@@ -615,6 +615,71 @@ body {
     position: relative;
 }
 
+.error-state {
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.error-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.5rem;
+}
+
+.error-hint {
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 50%, #ebebeb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: 12px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-header {
+    margin: 2rem 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.skeleton-title {
+    width: 60%;
+    height: 2.4rem;
+}
+
+.skeleton-date {
+    width: 100px;
+    height: 0.85rem;
+}
+
+.skeleton-body {
+    width: 80%;
+    height: 1rem;
+}
+
+.skeleton-compass {
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+}
+
+.skeleton-verdict {
+    max-width: 500px;
+    height: 130px;
+    margin: 1rem auto 0;
+}
+
 .cluster-dot {
   position: absolute;
   opacity: 1;

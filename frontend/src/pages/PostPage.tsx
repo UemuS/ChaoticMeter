@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Compass from "../components/Compass";
 import Navbar from "../components/Navbar";
-import { RateLimitError, getPost, submitVote } from "../services/api";
+import { NotFoundError, RateLimitError, getPost, submitVote } from "../services/api";
 import type { PostDetail } from "../types";
 import { getOrCreateVoterId } from "../utils/compass";
 
@@ -17,6 +17,7 @@ export default function PostPage() {
 
     const [post, setPost] = useState<PostDetail | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<"not_found" | "server" | null>(null);
     const [toast, setToast] = useState<ToastState>(null);
 
     useEffect(() => {
@@ -26,9 +27,15 @@ export default function PostPage() {
 
     async function loadInitialPost(currentSlug: string) {
         setLoading(true);
-        const data = await getPost(currentSlug);
-        setPost(data);
-        setLoading(false);
+        setError(null);
+        try {
+            const data = await getPost(currentSlug);
+            setPost(data);
+        } catch (err) {
+            setError(err instanceof NotFoundError ? "not_found" : "server");
+        } finally {
+            setLoading(false);
+        }
     }
 
     function showToast(message: string, kind: "info" | "success" = "info", duration = 1500) {
@@ -54,6 +61,8 @@ export default function PostPage() {
         } catch (err) {
             if (err instanceof RateLimitError) {
                 showToast("Too many votes — slow down a little", "info", 2500);
+            } else {
+                showToast("Vote didn't go through — try again", "info", 2000);
             }
         }
     }
@@ -94,12 +103,41 @@ export default function PostPage() {
     }
 
     if (loading) {
-        return <main style={{ padding: "2rem" }}>Loading...</main>;
+        return (
+            <main className="page-shell">
+                <div className="page-container">
+                    <div className="skeleton-header">
+                        <div className="skeleton skeleton-title" />
+                        <div className="skeleton skeleton-date" />
+                        <div className="skeleton skeleton-body" />
+                    </div>
+                    <div className="skeleton skeleton-compass" />
+                    <div className="skeleton skeleton-verdict" />
+                </div>
+            </main>
+        );
     }
 
-    if (!post) {
-        return <main style={{ padding: "2rem" }}>Post not found.</main>;
+    if (error) {
+        return (
+            <>
+                <Navbar onNewPostClick={handleNewPostClick} />
+                <main className="page-shell">
+                    <div className="page-container error-state">
+                        <p className="error-title">
+                            {error === "not_found" ? "This post doesn't exist." : "Something went wrong."}
+                        </p>
+                        <p className="error-hint">
+                            {error === "not_found" ? "It may have been removed or the link is wrong." : "The server might be down. Try again in a moment."}
+                        </p>
+                        <button className="primary-button" onClick={() => navigate("/")}>Back to home</button>
+                    </div>
+                </main>
+            </>
+        );
     }
+
+    if (!post) return null;
 
     return (
         <>
