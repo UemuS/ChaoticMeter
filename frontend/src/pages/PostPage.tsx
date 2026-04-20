@@ -25,6 +25,11 @@ export default function PostPage() {
         loadInitialPost(slug);
     }, [slug]);
 
+    useEffect(() => {
+        if (post) document.title = `${post.title} — ChaoticMeter`;
+        return () => { document.title = "ChaoticMeter — Where bad ideas get judged"; };
+    }, [post]);
+
     async function loadInitialPost(currentSlug: string) {
         setLoading(true);
         setError(null);

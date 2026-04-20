@@ -1,10 +1,10 @@
 # ChaoticMeter
 
-You submit something — a life choice, a bad idea, a very specific behavior. The internet votes on it using a 2D compass. Wholesome or questionable. Funny or dry. The crowd decides.
+You submit something: a life choice, a bad idea, a very specific behavior. The internet votes on it using a 2D compass. Wholesome or questionable. Funny or dry. The crowd decides.
 
 ---
 
-**Stack:** React + TypeScript + Vite — FastAPI + SQLite
+**Stack:** React + TypeScript + Vite, FastAPI + SQLite
 
 ---
 
