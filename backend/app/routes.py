@@ -1,11 +1,9 @@
 from datetime import datetime
-import html
 import random
 import re
 import string
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import FileResponse, HTMLResponse
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy import func
@@ -23,31 +21,6 @@ BOT_AGENTS = (
     "discordbot", "telegrambot", "whatsapp", "googlebot", "bingbot",
     "applebot", "ia_archiver", "iframely",
 )
-
-def is_bot(user_agent: str) -> bool:
-    ua = user_agent.lower()
-    return any(bot in ua for bot in BOT_AGENTS)
-
-def og_html(post: Post, base_url: str) -> str:
-    title = html.escape(post.title)
-    description = html.escape(post.body or "Vote on the ChaoticMeter compass.")
-    url = f"{base_url}/posts/{post.slug}"
-    return f"""<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>{title} — ChaoticMeter</title>
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="ChaoticMeter">
-  <meta property="og:title" content="{title}">
-  <meta property="og:description" content="{description}">
-  <meta property="og:url" content="{url}">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="{title}">
-  <meta name="twitter:description" content="{description}">
-</head>
-<body></body>
-</html>"""
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
@@ -136,24 +109,12 @@ def create_post(request: Request, payload: PostCreate, db: Session = Depends(get
     )
 
 
-@router.get("/posts/{slug}")
-def get_post(slug: str, request: Request, db: Session = Depends(get_db)):
-    accept = request.headers.get("accept", "")
-    ua = request.headers.get("user-agent", "")
-
-    if "text/html" in accept:
-        post = db.query(Post).filter(Post.slug == slug).first()
-        if is_bot(ua):
-            if not post:
-                return HTMLResponse("<h1>Not found</h1>", status_code=404)
-            base_url = str(request.base_url).rstrip("/")
-            return HTMLResponse(og_html(post, base_url))
-        return FileResponse(f"{STATIC_DIR}/index.html")
-
+@router.get("/posts/{slug}", response_model=PostDetailResponse)
+def get_post(slug: str, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.slug == slug).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
-    return PostDetailResponse.model_validate(post)
+    return post
 
 
 @router.post("/posts/{slug}/vote", response_model=VoteResponse)
