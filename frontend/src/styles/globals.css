@@ -758,6 +758,12 @@ body {
     border-color: #d7e3dc;
 }
 
+.toast-error {
+    background: #fdecea;
+    border-color: #f5c6c2;
+    color: #9b2a2a;
+}
+
 /* Animation */
 @keyframes toast-in-out {
     0% {
