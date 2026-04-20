@@ -4,8 +4,15 @@ from datetime import datetime
 from pydantic import BaseModel, Field, field_validator
 
 
+URL_PATTERN = re.compile(r"https?://|www\.\S+|\S+\.(com|net|org|io|co|me|ly|gg|tv|app)\b", re.IGNORECASE)
+
 def strip_tags(value: str) -> str:
     return re.sub(r"<[^>]*>", "", value).strip()
+
+def reject_links(value: str) -> str:
+    if URL_PATTERN.search(value):
+        raise ValueError("Links are not allowed")
+    return value
 
 
 class VoteCreate(BaseModel):
@@ -33,7 +40,8 @@ class PostCreate(BaseModel):
     @field_validator("title", "body")
     @classmethod
     def sanitize(cls, v: str) -> str:
-        return strip_tags(v)
+        v = strip_tags(v)
+        return reject_links(v)
 
 
 class PostResponse(BaseModel):

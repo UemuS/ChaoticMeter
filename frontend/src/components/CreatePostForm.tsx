@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RateLimitError } from "../services/api";
+import { RateLimitError, ValidationError } from "../services/api";
 
 type CreatePostFormProps = {
   onSubmit: (title: string, body: string) => Promise<void>;
@@ -32,6 +32,8 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
     } catch (err) {
       if (err instanceof RateLimitError) {
         showToast("You can only submit 5 posts per hour. Come back later!");
+      } else if (err instanceof ValidationError) {
+        showToast("No links allowed — keep it to words.");
       }
     } finally {
       setIsSubmitting(false);

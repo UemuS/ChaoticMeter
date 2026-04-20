@@ -44,6 +44,10 @@ export async function createPost(title: string, body: string): Promise<Post> {
     throw new RateLimitError();
   }
 
+  if (response.status === 422) {
+    throw new ValidationError();
+  }
+
   if (!response.ok) {
     throw new Error("Failed to create post");
   }
@@ -94,5 +98,11 @@ export async function submitVote(
 export class RateLimitError extends Error {
   constructor() {
     super("rate_limit");
+  }
+}
+
+export class ValidationError extends Error {
+  constructor() {
+    super("validation");
   }
 }
