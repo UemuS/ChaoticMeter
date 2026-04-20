@@ -9,10 +9,10 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; kind: "success" | "info" } | null>(null);
 
-  function showToast(message: string) {
-    setToast(message);
+  function showToast(message: string, kind: "success" | "info" = "info") {
+    setToast({ message, kind });
     setTimeout(() => setToast(null), 3000);
   }
 
@@ -50,7 +50,7 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
       </div>
 
       <div className="create-post-wrap">
-        {toast && <div className="toast toast-success">{toast}</div>}
+        {toast && <div className={`toast ${toast.kind === "success" ? "toast-success" : "toast-info"}`}>{toast.message}</div>}
       <form className="create-post-form" onSubmit={handleSubmit}>
         <input
           className="create-post-input"
