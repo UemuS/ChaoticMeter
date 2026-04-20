@@ -30,10 +30,16 @@ export default function Compass({ votes, onVote }: CompassProps) {
   }
   const [hoverPos, setHoverPos] = useState<{ color: string; left: number; top: number } | null>(null);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
+  const lastGifFetch = useRef<number>(0);
+  const GIF_COOLDOWN_MS = 15_000;
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
     if (!apiKey || votes.length === 0) { setGifUrl(null); return; }
+
+    const now = Date.now();
+    if (now - lastGifFetch.current < GIF_COOLDOWN_MS) return;
+    lastGifFetch.current = now;
 
     const query = encodeURIComponent(verdict.title);
     fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${query}&limit=5&rating=g&lang=en`)
