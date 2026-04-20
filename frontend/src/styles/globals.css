@@ -150,6 +150,20 @@ body {
     color: var(--muted);
 }
 
+.verdict-gif-wrap {
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.verdict-gif {
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
 .badge {
     padding: 0.35rem 0.7rem;
     border-radius: 999px;

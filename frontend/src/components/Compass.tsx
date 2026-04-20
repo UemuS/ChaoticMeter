@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Vote } from "../types";
 import {
   calculateAverage,
@@ -29,6 +29,24 @@ export default function Compass({ votes, onVote }: CompassProps) {
     return "#d98c45";
   }
   const [hoverPos, setHoverPos] = useState<{ color: string; left: number; top: number } | null>(null);
+  const [gifUrl, setGifUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
+    if (!apiKey || votes.length === 0) { setGifUrl(null); return; }
+
+    const query = encodeURIComponent(verdict.title);
+    fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${query}&limit=5&rating=g&lang=en`)
+      .then((r) => r.json())
+      .then((data) => {
+        const gifs = data.data;
+        if (gifs?.length > 0) {
+          const pick = gifs[Math.floor(Math.random() * gifs.length)];
+          setGifUrl(pick.images.fixed_height_small.url);
+        }
+      })
+      .catch(() => {});
+  }, [verdict.title]);
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     if (!ref.current) return;
@@ -113,6 +131,12 @@ export default function Compass({ votes, onVote }: CompassProps) {
         <p className="verdict-vote-count">
           Based on {votes.length} vote{votes.length !== 1 ? "s" : ""}
         </p>
+
+        {gifUrl && (
+          <div className="verdict-gif-wrap">
+            <img className="verdict-gif" src={gifUrl} alt={verdict.title} />
+          </div>
+        )}
       </div>
     </div>
   );
