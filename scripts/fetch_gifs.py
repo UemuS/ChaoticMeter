@@ -15,28 +15,28 @@ API_KEY = os.environ.get("GIPHY_API_KEY", "")
 GIF_COUNT = 8
 OUTPUT = os.path.join(os.path.dirname(__file__), "..", "frontend", "src", "data", "gifs.json")
 
-VERDICTS = [
-    "Chaotic Good-ish",
-    "Wholesome Chaos",
-    "Certified Feral Angel",
-    "Morally Flexible",
-    "Criminally Funny",
-    "A War Crime, But Make It Comedy",
-    "Quietly Decent",
-    "Pure but Dry",
-    "Corporate Retreat Energy",
-    "Mildly Sus",
-    "Pointless Villainy",
-    "Void Energy",
-]
+VERDICTS = {
+    "Chaotic Good-ish":              "mischievous smile funny",
+    "Wholesome Chaos":               "chaotic fun wholesome",
+    "Certified Feral Angel":         "unhinged but cute",
+    "Morally Flexible":              "suspicious laughing",
+    "Criminally Funny":              "evil laugh funny",
+    "A War Crime, But Make It Comedy": "chaotic evil funny",
+    "Quietly Decent":                "boring okay fine",
+    "Pure but Dry":                  "awkward silence dry",
+    "Corporate Retreat Energy":      "corporate boring office",
+    "Mildly Sus":                    "suspicious side eye",
+    "Pointless Villainy":            "evil villain sad",
+    "Void Energy":                   "dark empty stare",
+}
 
 if not API_KEY:
     print("Set GIPHY_API_KEY env var before running.")
     exit(1)
 
 result = {}
-for verdict in VERDICTS:
-    query = urllib.parse.quote(verdict)
+for verdict, search_query in VERDICTS.items():
+    query = urllib.parse.quote(search_query)
     url = f"https://api.giphy.com/v1/gifs/search?api_key={API_KEY}&q={query}&limit={GIF_COUNT}&rating=g&lang=en"
     with urllib.request.urlopen(url) as r:
         data = json.loads(r.read())
