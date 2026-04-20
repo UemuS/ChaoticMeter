@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import gifData from "../data/gifs.json";
 import type { Vote } from "../types";
 import {
   calculateAverage,
@@ -30,29 +31,14 @@ export default function Compass({ votes, onVote }: CompassProps) {
   }
   const [hoverPos, setHoverPos] = useState<{ color: string; left: number; top: number } | null>(null);
   const [gifUrl, setGifUrl] = useState<string | null>(null);
-  const lastGifFetch = useRef<number>(0);
-  const GIF_COOLDOWN_MS = 15_000;
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_GIPHY_API_KEY;
-    if (!apiKey || votes.length === 0) { setGifUrl(null); return; }
-
-    const now = Date.now();
-    if (now - lastGifFetch.current < GIF_COOLDOWN_MS) return;
-    lastGifFetch.current = now;
-
-    const query = encodeURIComponent(verdict.title);
-    fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${query}&limit=5&rating=g&lang=en`)
-      .then((r) => r.json())
-      .then((data) => {
-        const gifs = data.data;
-        if (gifs?.length > 0) {
-          const pick = gifs[Math.floor(Math.random() * gifs.length)];
-          setGifUrl(pick.images.fixed_height_small.url);
-        }
-      })
-      .catch(() => {});
-  }, [verdict.title]);
+    if (votes.length === 0) { setGifUrl(null); return; }
+    const urls = (gifData as Record<string, string[]>)[verdict.title];
+    if (urls?.length > 0) {
+      setGifUrl(urls[Math.floor(Math.random() * urls.length)]);
+    }
+  }, [verdict.title, votes.length === 0]);
 
   function handleClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     if (!ref.current) return;
