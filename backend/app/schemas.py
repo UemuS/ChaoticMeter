@@ -1,10 +1,15 @@
+import re
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def strip_tags(value: str) -> str:
+    return re.sub(r"<[^>]*>", "", value).strip()
 
 
 class VoteCreate(BaseModel):
-    voter_id: str
+    voter_id: str = Field(min_length=1, max_length=64)
     x: float = Field(ge=-100, le=100)
     y: float = Field(ge=-100, le=100)
 
@@ -24,6 +29,11 @@ class VoteResponse(BaseModel):
 class PostCreate(BaseModel):
     title: str = Field(min_length=1, max_length=60)
     body: str = Field(default="", max_length=500)
+
+    @field_validator("title", "body")
+    @classmethod
+    def sanitize(cls, v: str) -> str:
+        return strip_tags(v)
 
 
 class PostResponse(BaseModel):
