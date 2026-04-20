@@ -30,9 +30,9 @@ export default function CreatePostForm({ onSubmit }: CreatePostFormProps) {
       setTitle("");
       setBody("");
     } catch (err) {
-      if (err instanceof RateLimitError) {
+      if (err instanceof RateLimitError || (err instanceof Error && err.message === "rate_limit")) {
         showToast("You can only submit 5 posts per hour. Come back later!");
-      } else if (err instanceof ValidationError) {
+      } else if (err instanceof ValidationError || (err instanceof Error && err.message === "validation")) {
         showToast("No links allowed — keep it to words.");
       }
     } finally {
