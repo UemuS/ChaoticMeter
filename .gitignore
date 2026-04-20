@@ -1,0 +1,19 @@
+# Claude
+.claude/
+CLAUDE.md
+
+# Python
+backend/.venv/
+**/__pycache__/
+*.pyc
+
+# Database
+backend/chaoticmeter.db
+
+# Node
+node_modules/
+frontend/dist/
+
+# Misc
+.DS_Store
+*.deb
